@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Brand Architect | Build Your Brand Empire</title>
+    <meta name="description"
+        content="AI Brand Architect — an immersive AI-powered branding suite that crafts complete corporate identities through a cinematic, guided experience.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- External Client-Side Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+
+<body>
+
+    <canvas id="gradientCanvas"></canvas>
+
+    <!-- ═══════════════ PHASE 1: WELCOME SCREEN ═══════════════ -->
+    <div id="welcomeScreen" class="fullscreen-phase">
+        <h1 id="welcomeText" class="hero-text">For Those Destined to Lead.</h1>
+    </div>
+
+    <!-- ═══════════════ PHASE 2: MOTIVATION SCREEN ═══════════════ -->
+    <div id="motivationScreen" class="fullscreen-phase hidden">
+        <h1 id="motivationText" class="hero-text">Ready to build your future empire?</h1>
+        <p id="motivationSub" class="hero-subtitle">Let's craft a brand identity that the world will remember.</p>
+        <button id="letsGoBtn" class="cta-glass-btn">Let's get to it</button>
+    </div>
+
+
+
+    <!-- ═══════════════ PHASE 3: QUESTION FLOW ═══════════════ -->
+    <div id="questionFlow" class="fullscreen-phase hidden">
+        <div id="questionContainer"></div>
+    </div>
+
+    <!-- ═══════════════ PHASE 4: RESULTS DASHBOARD ═══════════════ -->
+    <div id="resultsDashboard" class="fullscreen-phase hidden">
+        <div class="results-inner" style="display:flex; flex-direction:column; align-items:center; width:100%;">
+            <div class="brand-hero-badge">❖ BRAND EMPIRE SPECIFICATION</div>
+            <h1 id="resultsGreeting" class="results-greeting"></h1>
+            <p id="resultsSubtitle" class="results-subtitle">Explore your generated brand identity package step-by-step below.</p>
+            <div id="resultsGrid" class="results-grid"></div>
+        </div>
+
+        <!-- Settings Corner -->
+        <div class="settings-corner" id="settingsCorner">
+            <button class="settings-btn" id="openApiKeyModalNew"
+                onclick="document.getElementById('apiKeyModal').classList.add('active')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                </svg>
+                API Key
+            </button>
+            <button class="settings-btn" id="restartBtn" onclick="restartFlow()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Restart
+            </button>
+        </div>
+
+        <!-- AI Assistant Chat Mascot Bubble -->
+        <div class="assistant-speech-bubble" id="assistantSpeechBubble" onclick="toggleAssistantChat()">
+            Hey! Stuck? Ask me anything!
+        </div>
+        <div class="assistant-bubble" id="assistantBubble" onclick="toggleAssistantChat()">
+            <img src="mascot.png" alt="AI Mascot Assistant">
+        </div>
+        <div class="assistant-chat" id="assistantChat">
+            <div class="assistant-chat-header">
+                <img src="mascot.png" alt="Mascot">
+                <span>Brand Buddy AI</span>
+            </div>
+            <div class="assistant-chat-body" id="chatBody">
+                <div class="chat-msg bot">Hey there! I'm your Brand Assistant. 👋 I can refine any aspect of your brand.
+                    Try asking "make the slogan bolder" or "regenerate campaign strategy"!</div>
+            </div>
+            <div class="assistant-chat-input">
+                <input type="text" id="chatInput" placeholder="Ask me to change something..."
+                    onkeydown="if(event.key==='Enter')sendChatMessage()">
+                <button onclick="sendChatMessage()">→</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PHASE 5: FULL-SCREEN FEATURE PAGE ═══════════════ -->
+    <div id="featurePage" class="fullscreen-phase hidden">
+        <div class="feature-page-wrapper">
+            <div class="feature-page-nav">
+                <button class="feature-back-btn" onclick="closeFeaturePage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Back to Brand Empire
+                </button>
+                <div id="featureHeaderBadge" class="feature-badge">FEATURE SUITE</div>
+            </div>
+            <div class="feature-page-container">
+                <h1 id="featureMainTitle" class="feature-title"></h1>
+                <div id="featurePageContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ DETAIL OVERLAY ═══════════════ -->
+    <div id="detailOverlay" style="display:none;"></div>
+
+    <!-- ═══════════════ API KEY MODAL ═══════════════ -->
+    <div class="modal-overlay" id="apiKeyModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>API CREDENTIALS</h3>
+                <button class="close-modal-btn" id="closeApiKeyModal">&times;</button>
+            </div>
+            <p style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:1rem;">
+                Enter your Hugging Face API Token to connect to AI generation endpoints.
+            </p>
+            <div class="form-group" style="margin-bottom:1.2rem;">
+                <label for="apiKeyInput">Hugging Face API Token</label>
+                <input type="password" id="apiKeyInput" class="input-field"
+                    placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn-primary" id="saveApiKeyBtn">Save Credentials</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <script src="fonts.js"></script>
+    <script src="slogans.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
