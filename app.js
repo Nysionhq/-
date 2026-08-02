@@ -14,6 +14,9 @@ const state = {
     db: null,
     auth: null,
 
+    profiles: [],
+    activeProfileId: 'default',
+
     company: '',
     industry: 'Technology',
     stage: 'Just Starting Out',
@@ -387,8 +390,10 @@ function renderUserProfileCorner() {
 async function saveUserDataToFirestore() {
     if (!state.user || !db) return;
     try {
-        const userDocRef = db.collection('users').doc(state.user.uid);
+        const profileId = state.activeProfileId || 'default';
+        const userDocRef = db.collection('users').doc(state.user.uid).collection('profiles').doc(profileId);
         const dataToSave = {
+            id: profileId,
             company: state.company,
             industry: state.industry,
             stage: state.stage,
@@ -414,54 +419,280 @@ async function saveUserDataToFirestore() {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         await userDocRef.set(dataToSave, { merge: true });
-        logDebug('SUCCESS', 'Saved brand profile to Firestore for ' + state.user.email);
+        logDebug('SUCCESS', `Saved brand profile "${profileId}" to Firestore for ${state.user.email}`);
     } catch (e) {
         logDebug('WARN', 'Firestore save failed:', e.message);
     }
 }
 
+function applyProfileDataToState(data) {
+    if (!data) return;
+    if (data.company) state.company = data.company;
+    if (data.industry) state.industry = data.industry;
+    if (data.stage) state.stage = data.stage;
+    if (data.progress) state.progress = data.progress;
+    if (data.archetype) state.archetype = data.archetype;
+    if (data.marketTier) state.marketTier = data.marketTier;
+    if (data.tone) state.tone = data.tone;
+    if (data.product) state.product = data.product;
+    if (data.audience) state.audience = data.audience;
+    if (data.channels) state.channels = data.channels;
+    if (data.usp) state.usp = data.usp;
+    if (data.avoid) state.avoid = data.avoid;
+    if (data.desc) state.desc = data.desc;
+    if (data.finalSlogan) state.finalSlogan = data.finalSlogan;
+    if (data.finalFont) state.finalFont = data.finalFont;
+    if (data.brand) {
+        try { state.brand = typeof data.brand === 'string' ? JSON.parse(data.brand) : data.brand; } catch(err){}
+    } else {
+        state.brand = null;
+    }
+    state.strategy = data.strategy || '';
+    state.hrPlan = data.hrPlan || '';
+    state.logisticsPlan = data.logisticsPlan || '';
+    state.marketingPlan = data.marketingPlan || '';
+    state.outreachPlan = data.outreachPlan || '';
+    state.socialPlan = data.socialPlan || '';
+}
+
 async function loadUserDataFromFirestore(uid) {
     if (!db || !uid) return;
     try {
-        const doc = await db.collection('users').doc(uid).get();
-        if (doc.exists) {
-            const data = doc.data();
-            if (data.company) state.company = data.company;
-            if (data.industry) state.industry = data.industry;
-            if (data.stage) state.stage = data.stage;
-            if (data.progress) state.progress = data.progress;
-            if (data.archetype) state.archetype = data.archetype;
-            if (data.marketTier) state.marketTier = data.marketTier;
-            if (data.tone) state.tone = data.tone;
-            if (data.product) state.product = data.product;
-            if (data.audience) state.audience = data.audience;
-            if (data.channels) state.channels = data.channels;
-            if (data.usp) state.usp = data.usp;
-            if (data.avoid) state.avoid = data.avoid;
-            if (data.desc) state.desc = data.desc;
-            if (data.finalSlogan) state.finalSlogan = data.finalSlogan;
-            if (data.finalFont) state.finalFont = data.finalFont;
-            if (data.brand) {
-                try { state.brand = typeof data.brand === 'string' ? JSON.parse(data.brand) : data.brand; } catch(err){}
-            }
-            if (data.strategy) state.strategy = data.strategy;
-            if (data.hrPlan) state.hrPlan = data.hrPlan;
-            if (data.logisticsPlan) state.logisticsPlan = data.logisticsPlan;
-            if (data.marketingPlan) state.marketingPlan = data.marketingPlan;
-            if (data.outreachPlan) state.outreachPlan = data.outreachPlan;
-            if (data.socialPlan) state.socialPlan = data.socialPlan;
-
-            logDebug('SUCCESS', 'Restored saved brand profile from Firestore!', { company: state.company });
-
-            if (state.company && state.hasReachedResults) {
-                const greeting = document.getElementById('resultsGreeting');
-                if (greeting) {
-                    greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
-                }
+        const snapshot = await db.collection('users').doc(uid).collection('profiles').get();
+        if (!snapshot.empty) {
+            state.profiles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const activeDoc = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles[0];
+            state.activeProfileId = activeDoc.id;
+            applyProfileDataToState(activeDoc);
+            logDebug('SUCCESS', `Restored ${state.profiles.length} brand profile(s) from Firestore!`, { activeCompany: state.company });
+        } else {
+            // Fallback for single document structure
+            const doc = await db.collection('users').doc(uid).get();
+            if (doc.exists) {
+                const data = doc.data();
+                applyProfileDataToState(data);
+                state.profiles = [{ id: 'default', company: state.company || 'Default Profile' }];
+                state.activeProfileId = 'default';
             }
         }
+
+        if (state.company && state.hasReachedResults) {
+            const greeting = document.getElementById('resultsGreeting');
+            if (greeting) {
+                greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
+            }
+        }
+        renderSidebar();
     } catch (e) {
         logDebug('WARN', 'Firestore load failed:', e.message);
+    }
+}
+
+// ── Left Sidebar & Multi-Profile Management Handlers ──
+function toggleLeftSidebar() {
+    const panel = document.getElementById('leftSidebarPanel');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (panel) panel.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('open');
+    renderSidebar();
+}
+
+function closeLeftSidebar() {
+    const panel = document.getElementById('leftSidebarPanel');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (panel) panel.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+}
+
+function renderSidebar() {
+    const avatar = document.getElementById('sidebarUserAvatar');
+    const nameEl = document.getElementById('sidebarUserName');
+    const emailEl = document.getElementById('sidebarUserEmail');
+    const select = document.getElementById('profileSelect');
+    const blocksContainer = document.getElementById('sidebarFeatureBlocks');
+
+    if (state.user) {
+        if (avatar) avatar.src = state.user.photoURL || 'mascot.png';
+        if (nameEl) nameEl.textContent = state.user.displayName || 'User Profile';
+        if (emailEl) emailEl.textContent = state.user.email || '';
+    } else {
+        if (avatar) avatar.src = 'mascot.png';
+        if (nameEl) nameEl.textContent = 'Guest User';
+        if (emailEl) emailEl.textContent = 'Sign in to sync brand profiles';
+    }
+
+    if (select) {
+        select.innerHTML = '';
+        if (state.profiles && state.profiles.length > 0) {
+            state.profiles.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.company || 'Brand Empire';
+                if (p.id === state.activeProfileId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        } else {
+            const opt = document.createElement('option');
+            opt.value = 'default';
+            opt.textContent = state.company || 'Default Brand';
+            select.appendChild(opt);
+        }
+    }
+
+    if (blocksContainer && typeof FEATURES !== 'undefined') {
+        blocksContainer.innerHTML = '';
+        let count = 0;
+        FEATURES.forEach(feat => {
+            const isGenerated = feat.stateCheck && feat.stateCheck();
+            if (isGenerated) {
+                count++;
+                const block = document.createElement('div');
+                block.className = 'sidebar-feature-block';
+                block.innerHTML = `
+                    <div class="sidebar-feature-title">${feat.title}</div>
+                    <div class="sidebar-feature-badge">✓ Ready</div>
+                `;
+                block.addEventListener('click', () => {
+                    closeLeftSidebar();
+                    feat.onView();
+                });
+                blocksContainer.appendChild(block);
+            }
+        });
+        if (count === 0) {
+            blocksContainer.innerHTML = `<p style="font-size:0.75rem; color:rgba(255,255,255,0.4); text-align:center; padding:1rem 0;">No features generated yet.</p>`;
+        }
+    }
+}
+
+async function createNewProfile() {
+    closeLeftSidebar();
+    const name = prompt("Enter name for the new Brand Profile:", "New Brand Empire");
+    if (!name || name.trim() === '') return;
+
+    const newId = 'profile_' + Date.now();
+    state.activeProfileId = newId;
+    state.company = name.trim();
+
+    // Reset questionnaire state
+    state.industry = 'Technology';
+    state.stage = 'Just Starting Out';
+    state.progress = 'Blank Canvas (0%)';
+    state.archetype = 'The Innovator (Tech / Frontier)';
+    state.marketTier = 'High-Tier Enterprise';
+    state.tone = 'Minimalist';
+    state.product = '';
+    state.audience = [];
+    state.channels = [];
+    state.usp = '';
+    state.avoid = '';
+    state.desc = '';
+
+    state.brand = null;
+    state.finalSlogan = '';
+    state.finalFont = '';
+    state.strategy = '';
+    state.hrPlan = '';
+    state.logisticsPlan = '';
+    state.marketingPlan = '';
+    state.outreachPlan = '';
+    state.socialPlan = '';
+
+    const newProf = { id: newId, company: state.company };
+    if (!state.profiles) state.profiles = [];
+    state.profiles.push(newProf);
+
+    if (state.user && db) {
+        await saveUserDataToFirestore();
+    }
+
+    renderSidebar();
+    restartFlow();
+}
+
+async function renameActiveProfile() {
+    const currentName = state.company || 'My Brand';
+    const newName = prompt("Edit Brand Profile Name:", currentName);
+    if (!newName || newName.trim() === '' || newName.trim() === currentName) return;
+
+    state.company = newName.trim();
+    const prof = state.profiles.find(p => p.id === state.activeProfileId);
+    if (prof) prof.company = state.company;
+
+    if (state.company && state.hasReachedResults) {
+        const greeting = document.getElementById('resultsGreeting');
+        if (greeting) {
+            greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
+        }
+    }
+
+    if (state.user && db) {
+        await saveUserDataToFirestore();
+    }
+
+    renderSidebar();
+    ResultsDashboard.render();
+}
+
+async function deleteActiveProfile() {
+    const profileName = state.company || 'Active Profile';
+    if (!confirm(`Are you sure you want to delete profile "${profileName}"?`)) return;
+
+    if (state.user && db && state.activeProfileId) {
+        try {
+            await db.collection('users').doc(state.user.uid).collection('profiles').doc(state.activeProfileId).delete();
+            logDebug('SUCCESS', `Deleted profile ${state.activeProfileId}`);
+        } catch (e) {
+            logDebug('WARN', 'Error deleting profile:', e.message);
+        }
+    }
+
+    state.profiles = state.profiles.filter(p => p.id !== state.activeProfileId);
+
+    if (state.profiles.length > 0) {
+        await switchActiveProfile(state.profiles[0].id);
+    } else {
+        await createNewProfile();
+    }
+}
+
+async function switchActiveProfile(profileId) {
+    if (!profileId) return;
+    state.activeProfileId = profileId;
+
+    if (state.user && db) {
+        try {
+            const doc = await db.collection('users').doc(state.user.uid).collection('profiles').doc(profileId).get();
+            if (doc.exists) {
+                applyProfileDataToState(doc.data());
+            }
+        } catch (e) {
+            logDebug('WARN', 'Error switching profile:', e.message);
+        }
+    } else {
+        const prof = state.profiles.find(p => p.id === profileId);
+        if (prof) applyProfileDataToState(prof);
+    }
+
+    if (state.company && state.hasReachedResults) {
+        const greeting = document.getElementById('resultsGreeting');
+        if (greeting) {
+            greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
+        }
+    }
+
+    renderSidebar();
+    ResultsDashboard.render();
+}
+
+function downloadBrandPDF() {
+    closeLeftSidebar();
+    if (state.brand) {
+        downloadBrandIdentityPDF();
+    } else if (state.strategy || state.hrPlan || state.marketingPlan) {
+        downloadBrandZip();
+    } else {
+        alert("Please generate your Brand Identity Suite or plans first before downloading the Brand Book.");
     }
 }
 
@@ -1196,6 +1427,8 @@ const ResultsDashboard = (() => {
             grid.appendChild(card);
             setTimeout(() => card.classList.add('visible'), 100 + i * 100);
         });
+
+        renderSidebar();
     }
 
     return { render, FEATURES };
