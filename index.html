@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nysion | The Star of Skills</title>
+  <meta name="description"
+    content="Nysion is a parent enterprise ecosystem orchestrating specialized technological ventures and AI platforms globally.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="images/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="images/favicon.png?v=2">
+</head>
+
+<body>
+
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <div class="levron-logo logo-lg" id="splashLogo" style="font-family: 'Cinzel', serif; font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: 3px;">
+        NYSION
+      </div>
+      <div class="levron-tagline">The Star of Skills</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CURSOR ═══════════════ -->
+  <div class="cursor" id="cursor">
+    <svg id="flying-money" width="40" height="50" viewBox="-20 -25 40 50" fill="none"
+      xmlns="http://www.w3.org/2000/svg">
+      <g id="money-wing-parent">
+        <g class="money-stack-group">
+          <path d="M -15 -16 C 0 -20 15 -16 15 -16 L 15 22 C 0 18 -15 22 -15 22 Z" fill="#b59227" stroke="#8a6d1b"
+            stroke-width="1.2" stroke-linejoin="round" />
+          <path d="M -15 -12 C 0 -16 15 -12 15 -12 L 15 24 C 0 20 -15 24 -15 24 Z" fill="#99752b" stroke="#8a6d1b"
+            stroke-width="1.2" stroke-linejoin="round" />
+          <path d="M -15 -20 C 0 -24 15 -20 15 -20 L 15 20 C 0 16 -15 20 -15 20 Z" fill="#d4af37" stroke="#8a6d1b"
+            stroke-width="1.2" stroke-linejoin="round" />
+          <path d="M -12.5 -17.5 C 0 -21.5 12.5 -17.5 12.5 -17.5 L 12.5 17.5 C 0 13.5 -12.5 17.5 -12.5 17.5 Z"
+            fill="none" stroke="#f3e5ab" stroke-width="0.75" stroke-dasharray="2 1.5" />
+          <path d="M -15.5 5 L -15.5 9 C 0 5 15.5 9 15.5 9 L 15.5 5 Z" fill="#E6D7AD" stroke="#8a6d1b"
+            stroke-width="1.2" />
+          <path d="M -15.5 -7 C 0 -11 15.5 -7 15.5 -7 L 15.5 5 C 0 1 -15.5 5 -15.5 5 Z" fill="#FFF2CC" stroke="#8a6d1b"
+            stroke-width="1.2" stroke-linejoin="round" />
+          <g transform="rotate(5)">
+            <text x="0" y="4" font-family="'Cinzel', serif" font-weight="900" font-size="10" fill="#FFFFFF"
+              text-anchor="middle" style="user-select: none;">AI</text>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Scroll video & particles background -->
+  <div id="scroll-video-container">
+    <canvas id="video-canvas"></canvas>
+    <video id="video-fallback" muted playsinline preload="auto" crossorigin="anonymous"
+      src="flower.mp4"></video>
+    <div class="overlay"></div>
+  </div>
+
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ═══════════════ NAV MENU ═══════════════ -->
+  <nav class="nav-menu" id="navMenu" aria-hidden="true">
+    <div class="nav-menu__scroll">
+      <ul class="nav-menu__list">
+        <li><a href="#hero" class="nav-link is-active" data-close-menu>Home <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#who-we-are" class="nav-link" data-close-menu>Who We Are<svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#approach" class="nav-link" data-close-menu>Approach <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#about" class="nav-link" data-close-menu>About Us <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#platforms" class="nav-link" data-close-menu>Platforms <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#governance" class="nav-link" data-close-menu>Excellence<svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="#leadership" class="nav-link" data-close-menu>Leadership<svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+        <li><a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html" class="nav-link" style="color:var(--accent-cta);">Nysion Forge <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg></a></li>
+      </ul>
+
+      <div class="nav-menu__footer">
+        <div class="nav-copy">
+          <p>©2026</p>
+          <p>Nysion Studio.<br>All Rights Reserved.</p>
+        </div>
+        <div class="nav-contact">
+          <div class="nav-contact__inner">
+            <p>Ready to build your brand?</p>
+            <a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html">Nysion Forge Workspace</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-right">
+      <a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html" class="header-contact-btn" id="contactBtn" style="text-decoration:none;">
+        <span>Nysion Forge</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M7 17L17 7M17 7H7M17 7v10" />
+        </svg>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <span class="burger">
+          <span></span><span></span><span></span>
+        </span>
+        <span class="close-x" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l12 12M16 4L4 16" />
+          </svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <div class="page-wrap" id="pageWrap">
+
+    <!-- ── HERO ── -->
+    <section class="hero" id="hero">
+      <canvas id="hero-bg-canvas"></canvas>
+      <div class="hero__content container">
+        <div class="hero__top" style="margin-left: 0; text-align: center; width: 100%;">
+          <div class="levron-logo logo-lg" id="heroLogo"
+            style="margin-bottom: 1.5rem; margin-left: auto; margin-right: auto; font-family: 'Cinzel', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; color: var(--text-primary); letter-spacing: 4px;">
+            NYSION
+          </div>
+          <div class="levron-tagline" style="margin-bottom: 3.5rem;">The Star of Skills</div>
+          <h2 class="hero__subtitle js-anim"
+            style="font-size: clamp(2rem, 3vw, 3.8rem); font-weight: 300; line-height: 1.3; max-width: 82rem; margin: 0 auto 3rem; color: var(--text-primary); --d:0.1s">
+            Empower your business with Nysion—the overarching parent enterprise orchestrating high-performance technological ventures and specialized platforms.
+          </h2>
+          <p class="js-anim"
+            style="font-size: 1.55rem; color: var(--text-sec); max-width: 72rem; margin: 0 auto 4rem; line-height: 1.75; --d:0.2s">
+            Nysion serves as the parent company backing cutting-edge technological ventures and specialized platforms. From brand identity architectures and AI strategy suites to kinetic canvas engines, Nysion empowers next-generation companies to innovate and scale seamlessly under one unified corporate ecosystem.
+          </p>
+          <div class="js-anim" style="display: flex; gap: 2rem; justify-content: center; align-items: center; --d:0.3s">
+            <a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html" class="cta-btn-gold" style="text-decoration:none;">
+              <span>Launch Nysion Forge</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+            <a href="https://satyr-ai.onrender.com" target="_blank" rel="noopener noreferrer" class="cta-btn-gold" style="text-decoration:none;">
+              <span>Launch Satyr</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="hero__explore-more js-anim"
+          style="text-align: center; margin-top: auto; padding-top: 4rem; --d:0.4s">
+          <p
+            style="font-size: 1.3rem; color: var(--text-sec); margin-bottom: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">
+            Explore Brand Architecture
+          </p>
+          <div class="scroll-down-arrow" style="font-size: 2rem; color: var(--text-sec);">↓</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SPACER / PARCHMENT GAP SECTION ── -->
+    <section class="magic-intro-section" id="magicIntroSection"
+      style="height: 100vh; background: var(--bg-main); display: flex; align-items: center; justify-content: center; position: relative; z-index: 5;">
+      <div class="container" style="text-align: center;">
+        <h2 class="js-reveal"
+          style="font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 4.5vw, 4.2rem); font-weight: 300; color: var(--text-primary); max-width: 85rem; margin: 0 auto; line-height: 1.4;">
+          Architecting Enterprise Innovation &amp; Technological Mastery...
+        </h2>
+        <p class="js-reveal"
+          style="font-size: 1.6rem; color: var(--text-sec); max-width: 60rem; margin: 2rem auto 0; line-height: 1.6; font-family: 'Inter', sans-serif;">
+          Scroll down to discover how Nysion nurtures specialized platforms and drives technological execution across its portfolio.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── MAGIC SCROLL SECTION ── -->
+    <section class="magic-scroll-section" id="magicScrollSection">
+      <div class="magic-scroll-sticky">
+        <div class="flower-overlay-container"
+          style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;">
+          <div class="flower-overlay-text" id="flowerText1" style="top: 50%; left: 8%; text-align: left;">
+            <span class="flower-overlay-num">01</span>
+            <h3 class="flower-overlay-title">Identity & Typography Suite</h3>
+            <p class="flower-overlay-desc">Generating memorable slogans, professional typography pairings, and harmonized color palettes.</p>
+          </div>
+          <div class="flower-overlay-text" id="flowerText2"
+            style="top: 350%; right: 8%; transform: translateY(-50%); text-align: right;">
+            <span class="flower-overlay-num">03</span>
+            <h3 class="flower-overlay-title">Launch-Ready Asset Packages</h3>
+            <p class="flower-overlay-desc">Compiling downloadable PDF brand books, international translations, and complete asset ZIPs.</p>
+          </div>
+          <div class="flower-overlay-text" id="flowerText3"
+            style="top: 200%; left: 50%; transform: translateX(-50%); text-align: center;">
+            <span class="flower-overlay-num">02</span>
+            <h3 class="flower-overlay-title">Kinetic Logo & Campaign Hub</h3>
+            <p class="flower-overlay-desc">Rendering real-time animated vector marks alongside high-converting social media campaign hooks.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WHO WE ARE ── -->
+    <section class="content-section bg-white" id="who-we-are">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">1:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Who We Are</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">About</p>
+            <h3 class="js-reveal" style="--d:0.1s">Profile:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <p class="desc-tag js-reveal">Vision & Mandate</p>
+            <div class="ethos-text js-reveal" style="--d:0.1s">
+              <p>Nysion is an overarching parent enterprise designed to architect, fund, and scale specialized technological ventures.</p>
+              <p style="margin-top: 1.5rem; font-size: 1.7rem; color: var(--text-sec);">Building a memorable identity shouldn't involve massive agency fees, weeks of delay, or creative guesswork. Our platform takes complete ownership of your visual presence, turning your company vision into cohesive corporate guidelines in seconds.</p>
+              <p style="margin-top: 1.5rem; font-size: 1.7rem; color: var(--text-sec);">From early-stage startups to growing enterprises, we empower founders to establish a world-class market presence and scale with total confidence.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── APPROACH & CORE VALUES ── -->
+    <section class="content-section bg-white" id="approach">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">2:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Our Approach</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">Pillars</p>
+            <h3 class="js-reveal" style="--d:0.1s">Execution:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <p class="desc-tag js-reveal">Core Values</p>
+
+            <div class="stats" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 3rem;">
+              <div class="stat js-reveal" style="--d:0s; display: flex; flex-direction: column; padding: 2rem 0;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--accent-cta);">
+                  Ownership</div>
+                <div class="stat__info" style="margin-top: 1rem;">
+                  <p>Our 24/7 virtual manager manages your brand identity end-to-end, removing agency costs and friction.
+                  </p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+              <div class="stat js-reveal" style="--d:0.08s; display: flex; flex-direction: column; padding: 2rem 0;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--accent-cta);">
+                  Precision</div>
+                <div class="stat__info" style="margin-top: 1rem;">
+                  <p>Instantly generating memorable slogans, tailored typography, and harmonized color palettes tailored to your tone.</p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+              <div class="stat js-reveal" style="--d:0.16s; display: flex; flex-direction: column; padding: 2rem 0;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--accent-cta);">
+                  Innovation</div>
+                <div class="stat__info" style="margin-top: 1rem;">
+                  <p>Bringing your mark to life with kinetic visual logo motion and high-converting campaign hooks.</p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+              <div class="stat js-reveal" style="--d:0.24s; display: flex; flex-direction: column; padding: 2rem 0;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--accent-cta);">
+                  Scale</div>
+                <div class="stat__info" style="margin-top: 1rem;">
+                  <p>Global tagline localization and 1-click compiled PDF brand books ready for immediate market expansion.</p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ABOUT US ── -->
+    <section class="content-section bg-white" id="about">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">3:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Our Platform</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">Overview</p>
+            <h3 class="js-reveal" style="--d:0.1s">Engine:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <p class="desc-tag js-reveal">Bridging the Gap</p>
+            <div class="ethos-text js-reveal" style="--d:0.08s">
+              <p>Nysion synthesizes corporate innovation, strategic growth, and specialized ventures under one parent ecosystem.</p>
+              <p style="margin-top: 1.5rem; font-size: 1.6rem; color: var(--text-sec);">Modern businesses move fast, but agency workflows remain slow and costly. By simply providing your company description and desired style tone, our AI manager constructs your complete identity suite instantly.</p>
+              <p style="margin-top: 1.5rem; font-size: 1.6rem; color: var(--text-sec);">We organize every asset into downloadable PDF brand books and complete package ZIPs, giving founders a structured, launch-ready platform built for growth.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vision & Mission Subsections -->
+        <div class="section-body" style="margin-top:0; border-top: none;">
+          <div class="section-label-col" style="border-top: none;">
+            <h3 class="js-reveal">Purpose:</h3>
+          </div>
+          <div class="section-content-col" style="border-top: none;">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;">
+              <div class="js-reveal" style="--d:0s">
+                <h4 style="font-family: 'Cinzel', serif; font-size: 2.2rem; margin-bottom: 1rem; color: var(--text-primary);">Vision
+                </h4>
+                <p style="font-size: 1.5rem; color: var(--text-sec); line-height: 1.6;">To serve as the global virtual brand manager of choice, empowering founders and businesses to launch world-class visual identities without boundaries.</p>
+              </div>
+              <div class="js-reveal" style="--d:0.1s">
+                <h4 style="font-family: 'Cinzel', serif; font-size: 2.2rem; margin-bottom: 1rem; color: var(--text-primary);">
+                  Mission</h4>
+                <p style="font-size: 1.5rem; color: var(--text-sec); line-height: 1.6;">To eliminate branding friction by delivering instant slogans, typography specifications, campaign hooks, kinetic logos, and client-ready brand guidelines.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BRANDING PLATFORMS ── -->
+    <section class="content-section bg-gray" id="platforms">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">4:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Modules & Features</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">Modules</p>
+            <h3 class="js-reveal" style="--d:0.1s">Capabilities:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <div class="portfolio-col-headers js-reveal">
+              <span>Module Name</span><span>Focus Description</span>
+            </div>
+
+            <div class="portfolio-list" id="portfolioList">
+              <div class="p-row js-reveal" style="grid-template-columns: 1.2fr 2fr;"><span
+                  class="p-row__name">Brand Identity Studio</span><span class="p-row__desc">AI Slogans, professional typography pairings, and hex color swatches.</span><span class="p-row__line js-reveal"></span></div>
+              <div class="p-row js-reveal" style="grid-template-columns: 1.2fr 2fr;"><span class="p-row__name">Campaign Strategy Hub</span><span class="p-row__desc">High-converting social captions, campaign hooks, and target KPI metrics.</span><span class="p-row__line js-reveal"></span></div>
+              <div class="p-row js-reveal" style="grid-template-columns: 1.2fr 2fr;"><span class="p-row__name">Executive Strategy Report</span><span class="p-row__desc">In-depth strategic growth roadmaps and brand positioning frameworks.</span><span class="p-row__line js-reveal"></span></div>
+              <div class="p-row js-reveal" style="grid-template-columns: 1.2fr 2fr;"><span
+                  class="p-row__name">Global Localization Engine</span><span class="p-row__desc">Tagline translation across international target markets for global reach.</span><span class="p-row__line js-reveal"></span>
+              </div>
+              <div class="p-row js-reveal" style="grid-template-columns: 1.2fr 2fr;"><span class="p-row__name">Kinetic Mark Studio</span><span class="p-row__desc">Interactive vector canvas logo engine rendering dynamic real-time motion.</span><span class="p-row__line js-reveal"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── GOVERNANCE & QUALITY ── -->
+    <section class="content-section bg-white" id="governance">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">5:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Excellence</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">Standards</p>
+            <h3 class="js-reveal" style="--d:0.1s">Quality:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <p class="desc-tag js-reveal">Built on Design Integrity</p>
+            <div class="ethos-text js-reveal" style="--d:0.1s">
+              <p style="font-size: 2.2rem; line-height: 1.4; color: var(--text-primary); margin-bottom: 2rem;">World-class branding, engineered without agency friction.</p>
+              <p style="font-size: 1.6rem; line-height: 1.7; color: var(--text-sec);">Nysion is built upon strict corporate governance, architectural excellence, and strategic standards across all subsidiary companies in its portfolio.</p>
+              <p style="margin-top: 1.5rem; font-size: 1.6rem; line-height: 1.7; color: var(--text-sec);">Our commitment is to provide clarity, speed, and uncompromising creative quality for every enterprise.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LEADERSHIP ── -->
+    <section class="content-section bg-white" id="leadership">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-num js-reveal">6:</div>
+          <div class="section-title-wrap">
+            <h2 class="section-title js-reveal">Leadership & Team</h2>
+            <span class="section-dot js-reveal" style="--d:0.15s">●</span>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="section-label-col">
+            <p class="label-tag js-reveal">Architects</p>
+            <h3 class="js-reveal" style="--d:0.1s">Team:</h3>
+          </div>
+          <div class="section-content-col">
+            <span class="bar-v js-reveal"></span>
+            <span class="bar-h js-reveal"></span>
+            <p class="desc-tag js-reveal">Core Team</p>
+
+            <div class="stats" style="grid-template-columns: 1fr; gap: 3.5rem;">
+              <div class="stat js-reveal" style="--d:0s; grid-template-columns: 1fr 2fr; padding-bottom: 2rem;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--accent-cta);">
+                  Anish Bammidi<br><span
+                    style="font-family: 'Inter', sans-serif; font-size: 1.4rem; color: var(--text-sec); font-weight: normal;">Chief Executive Officer (CEO)</span></div>
+                <div class="stat__info">
+                  <p style="font-size: 1.45rem; line-height: 1.7; color: var(--text-sec);">Anish drives the overall strategic vision, corporate growth, and executive leadership of the platform. With a strong background in data analytics, dataset curation, and business strategy, he oversees product evolution, market positioning, and core operations.</p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+
+              <div class="stat js-reveal" style="--d:0.08s; grid-template-columns: 1fr 2fr; padding-bottom: 2rem;">
+                <div class="stat__num"
+                  style="font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--accent-cta);">
+                  Akshith Reddy<br><span
+                    style="font-family: 'Inter', sans-serif; font-size: 1.4rem; color: var(--text-sec); font-weight: normal;">Chief Technology Officer (CTO)</span>
+                </div>
+                <div class="stat__info">
+                  <p style="font-size: 1.45rem; line-height: 1.7; color: var(--text-sec);">Akshith leads the technical vision, AI architecture, and engineering execution. He spearheads core AI integrations, prompt synthesis pipelines, the kinetic canvas engine, and full-stack system architecture.</p>
+                </div>
+                <span class="stat__line js-reveal"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER / CONTACT ── -->
+    <footer class="site-footer" id="contact">
+      <div class="container">
+        <div class="footer-logo">
+          <div class="levron-logo logo-md" style="margin-bottom: 1.5rem; font-family: 'Cinzel', serif; font-size: 24px; color: var(--text-primary); font-weight: 700;">
+            NYSION
+          </div>
+        </div>
+
+        <div class="footer-body"
+          style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4rem; display: grid;">
+          <div class="footer-cta">
+            <p style="font-family: 'Cinzel', serif; font-size: 2rem; color: var(--text-primary); margin-bottom: 1.5rem;">READY TO BUILD YOUR BRAND?</p>
+            <p style="font-size: 1.4rem; color: var(--text-sec); margin-bottom: 1.5rem;">Explore Nysion's parent ecosystem and subsidiary venture workspaces.</p>
+            <a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html" class="cta-btn-gold" style="text-decoration:none; display:inline-flex;">
+              <span>Launch Nysion Forge</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+          </div>
+          <div class="footer-address" style="color: var(--text-sec); font-size: 1.4rem; line-height: 1.7;">
+            <p style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">AI Studio Headquarters</p>
+            <p>Capstone Project - Group 1<br>Automated Branding Suite</p>
+          </div>
+        </div>
+
+        <div class="footer-bottom"
+          style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-divider);">
+          <p>©2026 Nysion. All Rights Reserved.</p>
+          <nav>
+            <a href="#who-we-are">Who We Are</a>
+            <a href="#approach">Approach</a>
+            <a href="#about">About</a>
+            <a href="#platforms">Platforms</a>
+            <a href="./AI-branding-assistant-capstone-project-group-1-main-2/index.html" style="color:var(--accent-cta);">Nysion Forge</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /.page-wrap -->
+
+  <script src="script.js"></script>
+</body>
+
+</html>
