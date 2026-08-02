@@ -91,13 +91,13 @@ const GradientEngine = (() => {
         motivation: defaultPalette,
         Playful: defaultPalette,
         results: [
-            { r: 20, g: 30, b: 85 },   // 0: Upper Left Deep Sapphire Glow
-            { r: 60, g: 18, b: 55 },   // 1: Mid Left Deep Midnight Violet Glow
-            { r: 75, g: 22, b: 35 },   // 2: Lower Left Deep Dark Plum Glow
-            { r: 15, g: 38, b: 90 },   // 3: Upper Right Deep Royal Blue Glow
-            { r: 65, g: 20, b: 60 },   // 4: Mid Right Deep Amethyst Glow
-            { r: 70, g: 25, b: 30 },   // 5: Lower Right Deep Obsidian Amber Glow
-            { r: 50, g: 20, b: 45 }    // 6: Bottom Center Deep Dark Horizon Glow
+            { r: 45, g: 85, b: 210 },   // Upper Left Vibrant Blue
+            { r: 215, g: 45, b: 150 },  // Mid Left Neon Magenta
+            { r: 235, g: 55, b: 80 },   // Lower Left Coral Red
+            { r: 35, g: 100, b: 225 },  // Upper Right Royal Sapphire
+            { r: 225, g: 50, b: 165 },  // Mid Right Hot Pink
+            { r: 245, g: 85, b: 45 },   // Lower Right Sunset Coral
+            { r: 235, g: 65, b: 40 }    // Bottom Horizon Glow
         ],
         warm: [
             { r: 90, g: 40, b: 190 },
@@ -1288,7 +1288,18 @@ const ResultsDashboard = (() => {
     ];
 
     function render() {
-        renderLeftSidebar();
+        const greeting = document.getElementById('resultsGreeting');
+        if (greeting) {
+            const companyName = state.company || 'APEX VISION';
+            greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(companyName)}</span>`;
+            greeting.classList.add('visible');
+        }
+
+        const subtitle = document.getElementById('resultsSubtitle');
+        if (subtitle) {
+            subtitle.textContent = state.finalSlogan || 'Explore your generated brand identity package step-by-step below.';
+            subtitle.classList.add('visible');
+        }
 
         const grid = document.getElementById('resultsGrid');
         grid.innerHTML = '';

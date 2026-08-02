@@ -54,37 +54,16 @@
 
     <!-- ═══════════════ PHASE 4: RESULTS DASHBOARD ═══════════════ -->
     <div id="resultsDashboard" class="fullscreen-phase hidden">
-        <!-- Left Sidebar Panel -->
-        <aside id="leftSidebar" class="left-sidebar">
-            <div class="sidebar-header">
-                <div id="sidebarUserProfile" class="sidebar-user-profile"></div>
-                <div id="profileDropdownMenu" class="profile-dropdown-menu" style="display:none;"></div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-section-label">GENERATED FEATURES</div>
-                <div id="sidebarFeatureBlocks" class="sidebar-feature-blocks"></div>
-            </div>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-download-btn" onclick="downloadBrandPDF()">
-                    <span>📄</span> Download Brand Book
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main id="resultsMainContent" class="results-main-content">
-            <div class="results-inner" style="display:flex; flex-direction:column; align-items:center; width:100%;">
-                <div class="brand-hero-badge">❖ BRAND EMPIRE SPECIFICATION</div>
-                <h1 id="resultsGreeting" class="results-greeting"></h1>
-                <p id="resultsSubtitle" class="results-subtitle">Explore your generated brand identity package step-by-step below.</p>
-                <div id="resultsGrid" class="results-grid"></div>
-            </div>
-        </main>
+        <div class="results-inner" style="display:flex; flex-direction:column; align-items:center; width:100%;">
+            <div class="brand-hero-badge">❖ BRAND EMPIRE SPECIFICATION</div>
+            <h1 id="resultsGreeting" class="results-greeting"></h1>
+            <p id="resultsSubtitle" class="results-subtitle">Explore your generated brand identity package step-by-step below.</p>
+            <div id="resultsGrid" class="results-grid"></div>
+        </div>
 
         <!-- Settings Corner -->
         <div class="settings-corner" id="settingsCorner">
+            <div id="userProfileCorner"></div>
             <button class="settings-btn" id="openApiKeyModalNew"
                 onclick="document.getElementById('apiKeyModal').classList.add('active')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
