@@ -458,10 +458,149 @@ async function loadUserDataFromFirestore(uid) {
                 if (greeting) {
                     greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
                 }
-            }
+            renderLeftSidebar();
         }
     } catch (e) {
         logDebug('WARN', 'Firestore load failed:', e.message);
+    }
+}
+
+// ── Left Sidebar Engine & Profile Management ──
+
+function renderLeftSidebar() {
+    renderSidebarUserProfile();
+    renderSidebarFeatureBlocks();
+}
+
+function toggleProfileDropdown(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('profileDropdownMenu');
+    if (!menu) return;
+    const isVisible = menu.style.display === 'block';
+    menu.style.display = isVisible ? 'none' : 'block';
+}
+
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profileDropdownMenu');
+    const profileBtn = document.getElementById('sidebarUserProfile');
+    if (menu && menu.style.display === 'block' && profileBtn && !profileBtn.contains(e.target) && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+function renderSidebarUserProfile() {
+    const container = document.getElementById('sidebarUserProfile');
+    const menu = document.getElementById('profileDropdownMenu');
+    if (!container) return;
+
+    if (state.user) {
+        const photo = state.user.photoURL || 'https://via.placeholder.com/32';
+        const userName = state.user.displayName || state.user.email || 'User Profile';
+        const brandName = state.company || 'New Brand Profile';
+
+        container.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; flex:1; overflow:hidden;">
+                <img src="${photo}" alt="User" class="user-avatar" onerror="this.src='https://via.placeholder.com/32'">
+                <div style="display:flex; flex-direction:column; overflow:hidden;">
+                    <span style="font-size:0.82rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(brandName)}</span>
+                    <span style="font-size:0.68rem; color:rgba(255,255,255,0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(userName)}</span>
+                </div>
+            </div>
+            <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin-left:6px;">▼</div>
+        `;
+        container.onclick = (e) => toggleProfileDropdown(e);
+
+        if (menu) {
+            menu.innerHTML = `
+                <div class="dropdown-item" onclick="addNewBrandProfile()">
+                    <span>➕</span> Add New Brand Profile
+                </div>
+                <div class="dropdown-item" onclick="editBrandProfileName()">
+                    <span>✏️</span> Edit Brand Name
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" onclick="deleteBrandProfile()" style="color:#ef4444;">
+                    <span>🗑️</span> Delete Brand Profile
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" onclick="signOutUser()">
+                    <span>🚪</span> Sign Out
+                </div>
+            `;
+        }
+    } else {
+        container.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; width:100%; justify-content:center;">
+                <span style="font-size:0.82rem; font-weight:600; color:#4ade80;">🔒 Sign in with Google</span>
+            </div>
+        `;
+        container.onclick = () => openAuthModal();
+        if (menu) menu.style.display = 'none';
+    }
+}
+
+function renderSidebarFeatureBlocks() {
+    const container = document.getElementById('sidebarFeatureBlocks');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // STRICT USER REQUIREMENT: Only show features that HAVE BEEN GENERATED!
+    const generatedFeatures = FEATURES.filter(f => f.stateCheck() && f.id !== 'export');
+
+    if (generatedFeatures.length === 0) {
+        container.innerHTML = `
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); padding:12px 6px; text-align:center; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed rgba(255,255,255,0.08);">
+                No generated features yet. Click any tile to generate!
+            </div>
+        `;
+        return;
+    }
+
+    generatedFeatures.forEach(feat => {
+        const block = document.createElement('div');
+        block.className = 'sidebar-feature-block generated';
+        block.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:20px; height:20px; display:flex; align-items:center; justify-content:center; color:#4ade80;">${feat.icon}</div>
+                <div class="sidebar-feature-block-title">${escapeHtml(feat.title)}</div>
+            </div>
+            <div class="sidebar-feature-block-status generated">✓</div>
+        `;
+        block.onclick = () => feat.onView();
+        container.appendChild(block);
+    });
+}
+
+function addNewBrandProfile() {
+    const menu = document.getElementById('profileDropdownMenu');
+    if (menu) menu.style.display = 'none';
+    restartFlow();
+}
+
+async function editBrandProfileName() {
+    const menu = document.getElementById('profileDropdownMenu');
+    if (menu) menu.style.display = 'none';
+
+    const currentName = state.company || 'My Brand';
+    const newName = prompt('Enter new company / brand name:', currentName);
+    if (newName && newName.trim() !== '') {
+        state.company = newName.trim();
+        await saveUserDataToFirestore();
+
+        const greeting = document.getElementById('resultsGreeting');
+        if (greeting) {
+            greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
+        }
+        renderLeftSidebar();
+    }
+}
+
+async function deleteBrandProfile() {
+    const menu = document.getElementById('profileDropdownMenu');
+    if (menu) menu.style.display = 'none';
+
+    if (confirm(`Are you sure you want to reset/delete the current brand profile (${state.company || 'Brand'})?`)) {
+        restartFlow();
     }
 }
 
@@ -605,7 +744,7 @@ const PhaseController = (() => {
 
         const subtitle = document.getElementById('resultsSubtitle');
         if (subtitle) {
-            const sloganOrDesc = state.finalSlogan || state.product || 'Explore your generated brand identity package step-by-step below.';
+            const sloganOrDesc = state.finalSlogan || 'Explore your generated brand identity package step-by-step below.';
             subtitle.textContent = sloganOrDesc;
             subtitle.classList.add('visible');
         }
@@ -1149,6 +1288,8 @@ const ResultsDashboard = (() => {
     ];
 
     function render() {
+        renderLeftSidebar();
+
         const grid = document.getElementById('resultsGrid');
         grid.innerHTML = '';
 
