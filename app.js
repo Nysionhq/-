@@ -740,20 +740,30 @@ const PhaseController = (() => {
         "👑 Assembling your empire brand identity..."
     ];
 
+    function hideAllPhases() {
+        document.querySelectorAll('.fullscreen-phase').forEach(p => {
+            p.classList.add('hidden');
+            p.style.display = 'none';
+        });
+    }
+
     async function start() {
         if (state.company || state.hasReachedResults) {
             logDebug('SYSTEM', 'Existing brand profile detected. Jumping directly to Results Dashboard.', { company: state.company });
             await showResults();
             return;
         }
+        hideAllPhases();
         state.currentPhase = 'welcome';
         await showWelcome();
     }
 
     async function showWelcome() {
+        hideAllPhases();
         const screen = document.getElementById('welcomeScreen');
         const text = document.getElementById('welcomeText');
         screen.classList.remove('hidden');
+        screen.style.display = 'flex';
 
         GradientEngine.setPalette('welcome', 2);
 
@@ -781,12 +791,14 @@ const PhaseController = (() => {
 
         await sleep(800);
         screen.classList.add('hidden');
+        screen.style.display = 'none';
         text.classList.remove('fade-away');
 
         await showMotivation();
     }
 
     async function showMotivation() {
+        hideAllPhases();
         state.currentPhase = 'motivation';
         const screen = document.getElementById('motivationScreen');
         const text = document.getElementById('motivationText');
@@ -796,6 +808,7 @@ const PhaseController = (() => {
         GradientEngine.setPalette('motivation', 2);
 
         screen.classList.remove('hidden');
+        screen.style.display = 'flex';
         await sleep(300);
         text.classList.add('visible');
         sub.classList.add('visible');
@@ -824,13 +837,8 @@ const PhaseController = (() => {
     }
 
     async function startQuestionFlow() {
+        hideAllPhases();
         state.currentPhase = 'questions';
-
-        // Explicitly hide all other screens
-        document.querySelectorAll('.fullscreen-phase').forEach(p => {
-            p.classList.add('hidden');
-            p.style.display = 'none';
-        });
 
         const screen = document.getElementById('questionFlow');
         if (screen) {
@@ -851,6 +859,7 @@ const PhaseController = (() => {
     }
 
     async function showResults() {
+        hideAllPhases();
         state.currentPhase = 'results';
         state.hasReachedResults = true;
         const screen = document.getElementById('resultsDashboard');
@@ -3734,11 +3743,25 @@ function escapeHtml(str) {
 document.addEventListener('DOMContentLoaded', () => {
     GradientEngine.init();
     initApiKeyModal();
+
+    // Restore local cache immediately for zero-delay startup check
+    try {
+        const localCached = localStorage.getItem(`nysion_profile_${state.activeProfileId || 'default'}`);
+        if (localCached) {
+            applyProfileDataToState(JSON.parse(localCached));
+        }
+    } catch(err){}
+
     initFirebase();
 
     logDebug('SYSTEM', 'Cinematic application v2 initialized.', {
         state: { company: state.company, tone: state.tone, hasApiKey: !!state.apiKey }
     });
 
-    PhaseController.start();
+    if (state.company) {
+        logDebug('SYSTEM', 'Existing brand profile detected on startup. Loading Results Dashboard directly.');
+        PhaseController.showResults();
+    } else {
+        PhaseController.start();
+    }
 });
