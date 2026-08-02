@@ -753,6 +753,69 @@ html, body {
     position: relative;
 }
 
+.result-card.locked {
+    background: rgba(15, 18, 30, 0.65) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    filter: brightness(0.72) contrast(0.9);
+}
+
+.result-card.locked:hover {
+    filter: brightness(0.85) contrast(0.95);
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-2px);
+}
+
+.result-card-status.locked-status {
+    color: #f59e0b !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-google-login {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: #ffffff;
+    color: #1f2937;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid #e5e7eb;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.btn-google-login:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.user-profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .result-card.visible { animation: cardIn 0.5s ease forwards; }
 
 .result-card:hover {

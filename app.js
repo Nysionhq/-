@@ -10,8 +10,9 @@ const DEFAULT_API_KEY = atob("aGZfT3pFbkFnYXpFZnVvWnNyTU56aU9NZkNUcFBmbGV4VGt5bw
 // ── Application State Store ──
 const state = {
     apiKey: localStorage.getItem('hf_api_key') || DEFAULT_API_KEY,
-    debugMode: localStorage.getItem('debug_mode') === 'true',
-    debugLogs: [],
+    user: null,
+    db: null,
+    auth: null,
 
     company: '',
     industry: 'Technology',
@@ -274,6 +275,195 @@ const GradientEngine = (() => {
 
 
 
+
+
+// ============================================================================
+// SECTION 1.5: FIREBASE AUTH & FIRESTORE STORAGE ENGINE
+// ============================================================================
+
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAuYwaW8lGA5cmb5gJ9i1Side5oZPzZa14",
+    authDomain: "nysion-hq.firebaseapp.com",
+    projectId: "nysion-hq",
+    storageBucket: "nysion-hq.firebasestorage.app",
+    messagingSenderId: "653430304808",
+    appId: "1:653430304808:web:627e1c2fa318ade36b851d",
+    measurementId: "G-4EML1E8RTT"
+};
+
+let db = null;
+let auth = null;
+
+function initFirebase() {
+    try {
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            auth = firebase.auth();
+            db = firebase.firestore();
+
+            auth.onAuthStateChanged(async (user) => {
+                state.user = user;
+                renderUserProfileCorner();
+                if (user) {
+                    logDebug('SUCCESS', `User authenticated with Google: ${user.email}`);
+                    await loadUserDataFromFirestore(user.uid);
+                } else {
+                    logDebug('SYSTEM', 'User signed out.');
+                }
+                if (state.currentPhase === 'results') {
+                    ResultsDashboard.render();
+                }
+            });
+        }
+    } catch (e) {
+        logDebug('WARN', 'Firebase initialization note:', e.message);
+    }
+}
+
+function openAuthModal() {
+    const modal = document.getElementById('googleAuthModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeAuthModal() {
+    const modal = document.getElementById('googleAuthModal');
+    if (modal) modal.classList.remove('active');
+}
+
+async function signInWithGoogle() {
+    if (!auth) {
+        initFirebase();
+    }
+    if (!auth) {
+        alert("Firebase Auth is initializing. Please try again.");
+        return;
+    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        closeAuthModal();
+        logDebug('SUCCESS', 'Logged in as ' + (result.user.displayName || result.user.email));
+        if (state.company) {
+            await saveUserDataToFirestore();
+        }
+    } catch (err) {
+        logDebug('ERROR', 'Google Sign-In failed', err.message);
+        alert('Google Sign-In Notice: ' + err.message);
+    }
+}
+
+async function signOutUser() {
+    if (auth) {
+        await auth.signOut();
+        state.user = null;
+        renderUserProfileCorner();
+        ResultsDashboard.render();
+    }
+}
+
+function renderUserProfileCorner() {
+    const corner = document.getElementById('userProfileCorner');
+    if (!corner) return;
+
+    if (state.user) {
+        const photo = state.user.photoURL || 'https://via.placeholder.com/32';
+        const name = state.user.displayName || state.user.email || 'User';
+        corner.innerHTML = `
+            <div class="user-profile-badge">
+                <img src="${photo}" alt="${escapeHtml(name)}" class="user-avatar" onerror="this.src='https://via.placeholder.com/32'">
+                <span style="font-size:0.75rem; font-weight:600;">${escapeHtml(name)}</span>
+                <button onclick="signOutUser()" style="background:none; border:none; color:rgba(255,255,255,0.5); cursor:pointer; font-size:0.75rem; margin-left:4px;" title="Sign Out">✕</button>
+            </div>
+        `;
+    } else {
+        corner.innerHTML = `
+            <button class="settings-btn" onclick="openAuthModal()" style="border-color:rgba(74,222,128,0.4); color:#4ade80;">
+                🔒 Sign in with Google
+            </button>
+        `;
+    }
+}
+
+async function saveUserDataToFirestore() {
+    if (!state.user || !db) return;
+    try {
+        const userDocRef = db.collection('users').doc(state.user.uid);
+        const dataToSave = {
+            company: state.company,
+            industry: state.industry,
+            stage: state.stage,
+            progress: state.progress,
+            archetype: state.archetype,
+            marketTier: state.marketTier,
+            tone: state.tone,
+            product: state.product,
+            audience: state.audience,
+            channels: state.channels,
+            usp: state.usp,
+            avoid: state.avoid,
+            desc: state.desc,
+            finalSlogan: state.finalSlogan,
+            finalFont: state.finalFont,
+            brand: state.brand ? JSON.stringify(state.brand) : null,
+            strategy: state.strategy || '',
+            hrPlan: state.hrPlan || '',
+            logisticsPlan: state.logisticsPlan || '',
+            marketingPlan: state.marketingPlan || '',
+            outreachPlan: state.outreachPlan || '',
+            socialPlan: state.socialPlan || '',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await userDocRef.set(dataToSave, { merge: true });
+        logDebug('SUCCESS', 'Saved brand profile to Firestore for ' + state.user.email);
+    } catch (e) {
+        logDebug('WARN', 'Firestore save failed:', e.message);
+    }
+}
+
+async function loadUserDataFromFirestore(uid) {
+    if (!db || !uid) return;
+    try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+            if (data.company) state.company = data.company;
+            if (data.industry) state.industry = data.industry;
+            if (data.stage) state.stage = data.stage;
+            if (data.progress) state.progress = data.progress;
+            if (data.archetype) state.archetype = data.archetype;
+            if (data.marketTier) state.marketTier = data.marketTier;
+            if (data.tone) state.tone = data.tone;
+            if (data.product) state.product = data.product;
+            if (data.audience) state.audience = data.audience;
+            if (data.channels) state.channels = data.channels;
+            if (data.usp) state.usp = data.usp;
+            if (data.avoid) state.avoid = data.avoid;
+            if (data.desc) state.desc = data.desc;
+            if (data.finalSlogan) state.finalSlogan = data.finalSlogan;
+            if (data.finalFont) state.finalFont = data.finalFont;
+            if (data.brand) {
+                try { state.brand = typeof data.brand === 'string' ? JSON.parse(data.brand) : data.brand; } catch(err){}
+            }
+            if (data.strategy) state.strategy = data.strategy;
+            if (data.hrPlan) state.hrPlan = data.hrPlan;
+            if (data.logisticsPlan) state.logisticsPlan = data.logisticsPlan;
+            if (data.marketingPlan) state.marketingPlan = data.marketingPlan;
+            if (data.outreachPlan) state.outreachPlan = data.outreachPlan;
+            if (data.socialPlan) state.socialPlan = data.socialPlan;
+
+            logDebug('SUCCESS', 'Restored saved brand profile from Firestore!', { company: state.company });
+
+            if (state.company && state.hasReachedResults) {
+                const greeting = document.getElementById('resultsGreeting');
+                if (greeting) {
+                    greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
+                }
+            }
+        }
+    } catch (e) {
+        logDebug('WARN', 'Firestore load failed:', e.message);
+    }
+}
 
 
 // ============================================================================
@@ -601,6 +791,8 @@ const QuestionFlow = (() => {
             : (state.channels || 'B2B LinkedIn & Direct Email');
 
         state.desc = `Company Name: ${state.company || 'Enterprise'}. Industry Sector: ${state.industry || 'Technology'}. Brand Foundation Stage: ${state.stage || 'Just Starting Out'}. Execution Progress: ${state.progress || 'Blank Canvas (0%)'}. Brand Archetype: ${state.archetype || 'The Innovator'}. Market Pricing Tier: ${state.marketTier || 'High-Tier Enterprise'}. Aesthetic Tone: ${state.tone || 'Minimalist'}. Core Product / Service: ${state.product || 'High-performance AI platform'}. Target Audience: ${audienceVal}. Distribution Channels: ${channelsVal}. Competitive Edge / USP: ${state.usp || 'Unmatched quality'}. Style Anti-Pattern (To Avoid): ${state.avoid || 'Generic branding'}.`;
+
+        await saveUserDataToFirestore();
     }
 
     function showQuestion(q, index) {
@@ -960,25 +1152,38 @@ const ResultsDashboard = (() => {
         const grid = document.getElementById('resultsGrid');
         grid.innerHTML = '';
 
+        const isLocked = !state.user;
+
         FEATURES.forEach((feat, i) => {
             const isGenerated = feat.stateCheck();
             const card = document.createElement('div');
-            card.className = 'result-card';
+            card.className = `result-card ${isLocked ? 'locked' : ''}`;
             card.style.animationDelay = `${i * 0.1}s`;
+
+            const arrowIcon = isLocked ? '🔒' : '→';
+            const statusText = isLocked 
+                ? '🔒 Login Required to Access' 
+                : (isGenerated ? '✓ Ready to view' : '○ Click to generate');
+
             card.innerHTML = `
                 <div class="result-card-header">
                     <div class="result-card-icon">${feat.icon}</div>
-                    <div class="result-card-arrow">→</div>
+                    <div class="result-card-arrow">${arrowIcon}</div>
                 </div>
                 <div class="result-card-body">
                     <div class="result-card-title">${feat.title}</div>
                     <div class="result-card-desc">${feat.desc}</div>
                 </div>
                 <div class="result-card-footer">
-                    <div class="result-card-status ${isGenerated ? 'generated' : ''}">${isGenerated ? '✓ Ready to view' : '○ Click to generate'}</div>
+                    <div class="result-card-status ${isLocked ? 'locked-status' : (isGenerated ? 'generated' : '')}">${statusText}</div>
                 </div>
             `;
+
             card.addEventListener('click', () => {
+                if (isLocked) {
+                    openAuthModal();
+                    return;
+                }
                 if (isGenerated) {
                     feat.onView();
                 } else if (feat.onGenerate) {
@@ -3263,7 +3468,7 @@ function escapeHtml(str) {
 document.addEventListener('DOMContentLoaded', () => {
     GradientEngine.init();
     initApiKeyModal();
-    initDebugConsole();
+    initFirebase();
 
     logDebug('SYSTEM', 'Cinematic application v2 initialized.', {
         state: { company: state.company, tone: state.tone, hasApiKey: !!state.apiKey }
