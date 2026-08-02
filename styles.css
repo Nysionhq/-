@@ -657,6 +657,15 @@ html, body {
     background: rgba(255,255,255,0.8);
 }
 
+#resultsDashboard {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 4rem 2rem 8rem;
+}
+
+.step-dot.completed { background: rgba(255,255,255,0.4); }
+
 /* ══════════ RESULTS DASHBOARD & FEATURE PAGE — Vertical scroll ══════════ */
 #resultsDashboard, #featurePage {
     overflow-y: auto;
@@ -699,8 +708,8 @@ html, body {
     color: #fff;
     text-align: center;
     margin-bottom: 0.8rem;
-    opacity: 1 !important;
-    transform: none !important;
+    opacity: 0;
+    transform: translateY(20px);
     line-height: 1.2;
 }
 
@@ -725,7 +734,7 @@ html, body {
     max-width: 800px;
     margin: 0 auto 3.5rem;
     line-height: 1.6;
-    opacity: 1 !important;
+    opacity: 0;
 }
 
 .results-subtitle.visible { animation: textReveal 0.7s 0.2s ease forwards; }
@@ -747,8 +756,8 @@ html, body {
     padding: 1.8rem 1.6rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    opacity: 1 !important;
-    transform: none !important;
+    opacity: 0;
+    transform: translateY(20px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
