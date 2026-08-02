@@ -730,6 +730,7 @@ function downloadBrandPDF() {
 // ============================================================================
 const PhaseController = (() => {
     function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+    let activeFlowId = 0;
 
     const HUMOROUS_TEXTS = [
         "⚡ Cooking up something legendary...",
@@ -748,6 +749,7 @@ const PhaseController = (() => {
     }
 
     async function start() {
+        const flowId = ++activeFlowId;
         if (state.company || state.hasReachedResults) {
             logDebug('SYSTEM', 'Existing brand profile detected. Jumping directly to Results Dashboard.', { company: state.company });
             await showResults();
@@ -755,10 +757,11 @@ const PhaseController = (() => {
         }
         hideAllPhases();
         state.currentPhase = 'welcome';
-        await showWelcome();
+        await showWelcome(flowId);
     }
 
-    async function showWelcome() {
+    async function showWelcome(flowId) {
+        if (flowId !== activeFlowId) return;
         hideAllPhases();
         const screen = document.getElementById('welcomeScreen');
         const text = document.getElementById('welcomeText');
@@ -770,14 +773,17 @@ const PhaseController = (() => {
         // First intro text
         text.textContent = 'For Those Destined to Lead.';
         await sleep(400);
+        if (flowId !== activeFlowId) return;
         text.classList.add('visible');
 
         await sleep(2800);
+        if (flowId !== activeFlowId) return;
 
         text.classList.remove('visible');
         text.classList.add('fade-away');
 
         await sleep(800);
+        if (flowId !== activeFlowId) return;
         text.classList.remove('fade-away');
 
         // Second intro text
@@ -785,19 +791,22 @@ const PhaseController = (() => {
         text.classList.add('visible');
 
         await sleep(2800);
+        if (flowId !== activeFlowId) return;
 
         text.classList.remove('visible');
         text.classList.add('fade-away');
 
         await sleep(800);
+        if (flowId !== activeFlowId) return;
         screen.classList.add('hidden');
         screen.style.display = 'none';
         text.classList.remove('fade-away');
 
-        await showMotivation();
+        await showMotivation(flowId);
     }
 
-    async function showMotivation() {
+    async function showMotivation(flowId) {
+        if (flowId !== activeFlowId) return;
         hideAllPhases();
         state.currentPhase = 'motivation';
         const screen = document.getElementById('motivationScreen');
@@ -810,6 +819,7 @@ const PhaseController = (() => {
         screen.classList.remove('hidden');
         screen.style.display = 'flex';
         await sleep(300);
+        if (flowId !== activeFlowId) return;
         text.classList.add('visible');
         sub.classList.add('visible');
         btn.classList.add('visible');
@@ -824,6 +834,7 @@ const PhaseController = (() => {
                 btn.classList.add('fade-away');
 
                 await sleep(600);
+                if (flowId !== activeFlowId) { resolve(); return; }
                 screen.classList.add('hidden');
                 screen.style.display = 'none';
                 text.classList.remove('fade-away');
@@ -833,10 +844,12 @@ const PhaseController = (() => {
             }, { once: true });
         });
 
-        await startQuestionFlow();
+        if (flowId !== activeFlowId) return;
+        await startQuestionFlow(flowId);
     }
 
-    async function startQuestionFlow() {
+    async function startQuestionFlow(flowId) {
+        if (flowId && flowId !== activeFlowId) return;
         hideAllPhases();
         state.currentPhase = 'questions';
 
@@ -850,6 +863,8 @@ const PhaseController = (() => {
 
         await QuestionFlow.run();
 
+        if (flowId && flowId !== activeFlowId) return;
+
         if (screen) {
             screen.classList.add('hidden');
             screen.style.display = 'none';
@@ -859,6 +874,7 @@ const PhaseController = (() => {
     }
 
     async function showResults() {
+        activeFlowId++; // Cancel any background intro/motivation sleep flows!
         hideAllPhases();
         state.currentPhase = 'results';
         state.hasReachedResults = true;
