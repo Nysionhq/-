@@ -473,35 +473,36 @@ async function loadUserDataFromFirestore(uid) {
         }
     } catch(err){}
 
-    if (!db || !uid) return;
-    try {
-        const snapshot = await db.collection('users').doc(uid).collection('profiles').get();
-        if (!snapshot.empty) {
-            state.profiles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const activeDoc = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles[0];
-            state.activeProfileId = activeDoc.id;
-            applyProfileDataToState(activeDoc);
-            logDebug('SUCCESS', `Restored ${state.profiles.length} brand profile(s) from Firestore!`, { activeCompany: state.company });
-        } else {
-            const doc = await db.collection('users').doc(uid).get();
-            if (doc.exists) {
-                const data = doc.data();
-                applyProfileDataToState(data);
-                state.profiles = [{ id: 'default', company: state.company || 'Default Profile' }];
-                state.activeProfileId = 'default';
+    if (db && uid) {
+        try {
+            const snapshot = await db.collection('users').doc(uid).collection('profiles').get();
+            if (!snapshot.empty) {
+                state.profiles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const activeDoc = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles[0];
+                state.activeProfileId = activeDoc.id;
+                applyProfileDataToState(activeDoc);
+                logDebug('SUCCESS', `Restored ${state.profiles.length} brand profile(s) from Firestore!`, { activeCompany: state.company });
+            } else {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    applyProfileDataToState(data);
+                    state.profiles = [{ id: 'default', company: state.company || 'Default Profile' }];
+                    state.activeProfileId = 'default';
+                }
             }
+        } catch (e) {
+            logDebug('WARN', 'Firestore load note (using local cache):', e.message);
         }
-
-        if (state.company && state.hasReachedResults) {
-            const greeting = document.getElementById('resultsGreeting');
-            if (greeting) {
-                greeting.innerHTML = `Brand Empire: <span class="brand-name-highlight">${escapeHtml(state.company)}</span>`;
-            }
-        }
-        renderSidebar();
-    } catch (e) {
-        logDebug('WARN', 'Firestore load note (using local cache):', e.message);
     }
+
+    if (state.company) {
+        state.hasReachedResults = true;
+        if (state.currentPhase !== 'results' && typeof PhaseController !== 'undefined' && PhaseController.showResults) {
+            PhaseController.showResults();
+        }
+    }
+    renderSidebar();
 }
 
 // ── Left Sidebar & Multi-Profile Management Handlers ──
@@ -740,6 +741,11 @@ const PhaseController = (() => {
     ];
 
     async function start() {
+        if (state.company || state.hasReachedResults) {
+            logDebug('SYSTEM', 'Existing brand profile detected. Jumping directly to Results Dashboard.', { company: state.company });
+            await showResults();
+            return;
+        }
         state.currentPhase = 'welcome';
         await showWelcome();
     }
