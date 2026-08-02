@@ -1334,8 +1334,8 @@ const ResultsDashboard = (() => {
                 }
             });
 
+            card.classList.add('visible');
             grid.appendChild(card);
-            setTimeout(() => card.classList.add('visible'), 100 + i * 100);
         });
     }
 
