@@ -1352,6 +1352,27 @@ html, body {
     white-space: nowrap;
     animation: speechBob 3s ease-in-out infinite;
     transition: var(--transition-smooth);
+    max-width: calc(100vw - 10rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .assistant-speech-bubble {
+        display: none !important;
+    }
+    .assistant-bubble {
+        bottom: 1.2rem;
+        right: 1.2rem;
+        width: 56px;
+        height: 56px;
+    }
+    .assistant-chat {
+        right: 1rem;
+        left: 1rem;
+        width: auto;
+        bottom: 5.5rem;
+    }
 }
 
 /* Speech bubble tail pointing right towards the mascot */

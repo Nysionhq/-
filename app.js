@@ -388,40 +388,49 @@ function renderUserProfileCorner() {
 }
 
 async function saveUserDataToFirestore() {
+    const profileId = state.activeProfileId || 'default';
+    const dataToSave = {
+        id: profileId,
+        company: state.company,
+        industry: state.industry,
+        stage: state.stage,
+        progress: state.progress,
+        archetype: state.archetype,
+        marketTier: state.marketTier,
+        tone: state.tone,
+        product: state.product,
+        audience: state.audience,
+        channels: state.channels,
+        usp: state.usp,
+        avoid: state.avoid,
+        desc: state.desc,
+        finalSlogan: state.finalSlogan,
+        finalFont: state.finalFont,
+        brand: state.brand ? JSON.stringify(state.brand) : null,
+        strategy: state.strategy || '',
+        hrPlan: state.hrPlan || '',
+        logisticsPlan: state.logisticsPlan || '',
+        marketingPlan: state.marketingPlan || '',
+        outreachPlan: state.outreachPlan || '',
+        socialPlan: state.socialPlan || '',
+        updatedAt: new Date().toISOString()
+    };
+
+    // Always cache locally first for offline instant access
+    try {
+        localStorage.setItem(`nysion_profile_${profileId}`, JSON.stringify(dataToSave));
+    } catch(err){}
+
     if (!state.user || !db) return;
     try {
-        const profileId = state.activeProfileId || 'default';
         const userDocRef = db.collection('users').doc(state.user.uid).collection('profiles').doc(profileId);
-        const dataToSave = {
-            id: profileId,
-            company: state.company,
-            industry: state.industry,
-            stage: state.stage,
-            progress: state.progress,
-            archetype: state.archetype,
-            marketTier: state.marketTier,
-            tone: state.tone,
-            product: state.product,
-            audience: state.audience,
-            channels: state.channels,
-            usp: state.usp,
-            avoid: state.avoid,
-            desc: state.desc,
-            finalSlogan: state.finalSlogan,
-            finalFont: state.finalFont,
-            brand: state.brand ? JSON.stringify(state.brand) : null,
-            strategy: state.strategy || '',
-            hrPlan: state.hrPlan || '',
-            logisticsPlan: state.logisticsPlan || '',
-            marketingPlan: state.marketingPlan || '',
-            outreachPlan: state.outreachPlan || '',
-            socialPlan: state.socialPlan || '',
+        await userDocRef.set({
+            ...dataToSave,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        await userDocRef.set(dataToSave, { merge: true });
+        }, { merge: true });
         logDebug('SUCCESS', `Saved brand profile "${profileId}" to Firestore for ${state.user.email}`);
     } catch (e) {
-        logDebug('WARN', 'Firestore save failed:', e.message);
+        logDebug('WARN', 'Cloud Firestore sync note:', e.message);
     }
 }
 
@@ -456,6 +465,14 @@ function applyProfileDataToState(data) {
 }
 
 async function loadUserDataFromFirestore(uid) {
+    // Try restoring local cache first for zero-latency load
+    try {
+        const localCached = localStorage.getItem(`nysion_profile_${state.activeProfileId || 'default'}`);
+        if (localCached) {
+            applyProfileDataToState(JSON.parse(localCached));
+        }
+    } catch(err){}
+
     if (!db || !uid) return;
     try {
         const snapshot = await db.collection('users').doc(uid).collection('profiles').get();
@@ -466,7 +483,6 @@ async function loadUserDataFromFirestore(uid) {
             applyProfileDataToState(activeDoc);
             logDebug('SUCCESS', `Restored ${state.profiles.length} brand profile(s) from Firestore!`, { activeCompany: state.company });
         } else {
-            // Fallback for single document structure
             const doc = await db.collection('users').doc(uid).get();
             if (doc.exists) {
                 const data = doc.data();
@@ -484,7 +500,7 @@ async function loadUserDataFromFirestore(uid) {
         }
         renderSidebar();
     } catch (e) {
-        logDebug('WARN', 'Firestore load failed:', e.message);
+        logDebug('WARN', 'Firestore load note (using local cache):', e.message);
     }
 }
 
@@ -539,12 +555,22 @@ function renderSidebar() {
         }
     }
 
-    if (blocksContainer && typeof FEATURES !== 'undefined') {
+    if (blocksContainer) {
         blocksContainer.innerHTML = '';
+        const allFeatures = [
+            { title: 'Brand Identity Suite', stateCheck: () => !!state.brand, onView: () => renderBrandDetailPanel() },
+            { title: 'Executive Growth Roadmap', stateCheck: () => !!state.strategy, onView: () => renderStrategyDetailPanel() },
+            { title: 'AI Logo Studio', stateCheck: () => !!state.logoImageDataUrl, onView: () => renderLogoDetailPanel() },
+            { title: 'HR & Talent Architecture', stateCheck: () => !!state.hrPlan, onView: () => renderHRDetailPanel() },
+            { title: 'Logistics & Operations Plan', stateCheck: () => !!state.logisticsPlan, onView: () => renderLogisticsDetailPanel() },
+            { title: 'Comprehensive Marketing Plan', stateCheck: () => !!state.marketingPlan, onView: () => renderMarketingDetailPanel() },
+            { title: 'Outreach & Prospecting Strategy', stateCheck: () => !!state.outreachPlan, onView: () => renderOutreachDetailPanel() },
+            { title: 'Social Media Strategy & Content Plan', stateCheck: () => !!state.socialPlan, onView: () => renderSocialDetailPanel() }
+        ];
+
         let count = 0;
-        FEATURES.forEach(feat => {
-            const isGenerated = feat.stateCheck && feat.stateCheck();
-            if (isGenerated) {
+        allFeatures.forEach(feat => {
+            if (feat.stateCheck()) {
                 count++;
                 const block = document.createElement('div');
                 block.className = 'sidebar-feature-block';
@@ -559,6 +585,7 @@ function renderSidebar() {
                 blocksContainer.appendChild(block);
             }
         });
+
         if (count === 0) {
             blocksContainer.innerHTML = `<p style="font-size:0.75rem; color:rgba(255,255,255,0.4); text-align:center; padding:1rem 0;">No features generated yet.</p>`;
         }
